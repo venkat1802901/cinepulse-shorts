@@ -1,0 +1,31 @@
+{
+  "channel_handle": "@CinePulseFlix",
+  "created_at": "2026-11-14T20:15:00+05:30",
+  "deduplication_policy": {
+    "block_exact_youtube_id": true,
+    "block_same_song_repeat": true,
+    "block_overlapping_footage_segments": true,
+    "min_days_artist_cooldown": 14
+  },
+  "history": [
+    {
+      "id": "entry-001",
+      "language": "hindi",
+      "track_name": "Tauba Tauba",
+      "artist": "Karan Aujla, Vicky Kaushal",
+      "normalized_signature": "taubatauba_karanaujla",
+      "source_video_id": "LK7-_dgAVQE",
+      "source_url": "https://www.youtube.com/watch?v=LK7-_dgAVQE",
+      "clip_segments": [
+        {
+          "start_sec": 40.0,
+          "end_sec": 62.0,
+          "duration": 22.0,
+          "scene_description": "Vicky Kaushal signature leg slip dance & chorus hook"
+        }
+      ],
+      "first_rendered_date": "2026-11-14",
+      "status": "approved_for_upload"
+    }
+  ]
+}

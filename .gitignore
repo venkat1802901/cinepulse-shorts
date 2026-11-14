@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual Environments
+venv/
+env/
+.env
+
+# Cloudflare local state
+cloudflared.exe
+.cloudflared/
+
+# Large temporary scratch videos
+temp_*.mp4
+chunk.wav
+
+# Keep app static and ledger
+!app/data/channel_ledger.json
+!app/data/videos.json
+!app/static/manifest.json
+!app/static/sw.js
+!app/static/app.js
+!app/static/app.css
+!app/static/icon-*.png

@@ -1,0 +1,78 @@
+name: CinePulse Midnight 4-Video Production
+
+on:
+  schedule:
+    # 18:30 UTC = 12:00 AM IST (Midnight)
+    - cron: '30 18 * * *'
+  workflow_dispatch: # Allows 1-click manual trigger from GitHub app on phone!
+
+jobs:
+  produce-daily-shorts:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🐍 Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: 🎬 Install System FFmpeg & Fonts
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg fonts-dejavu-core fonts-noto-cjk fonts-indic libass-dev
+
+      - name: 📦 Install Python Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: ⚙️ Execute Midnight Production Engine (Deduplication + Kinetic Lyrics + 60FPS)
+        run: |
+          python daily_runner.py
+
+      - name: 📅 Get Today's Date
+        id: date
+        run: echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+
+      - name: 🚀 Publish 4 Finished Videos as GitHub Daily Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: drop-${{ steps.date.outputs.date }}
+          name: "🎬 CinePulse Daily Drop — ${{ steps.date.outputs.date }}"
+          files: |
+            app/static/*.mp4
+            app/data/videos.json
+          body: |
+            ## ⚡ CinePulse Daily Drop Ready!
+            4 Fresh 60FPS Edits produced autonomously in the cloud:
+            - 🇮🇳 **Hindi**: Trending Dance Velocity
+            - 🎭 **Telugu**: Tollywood Mass Anthem
+            - ⚡ **Tamil**: Kollywood Beat Drop
+            - 🌟 **Wildcard**: Breakout Viral Trend
+
+            Tap on any video asset below to download directly to your phone, approve your favorite 2, and publish!
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 💾 Commit Updated Deduplication Ledger
+        run: |
+          git config --global user.name "CinePulse Cloud Bot"
+          git config --global user.email "bot@cinepulse.ai"
+          git add app/data/channel_ledger.json app/data/videos.json
+          git commit -m "Auto-update deduplication ledger for ${{ steps.date.outputs.date }} [skip ci]" || echo "No changes to commit"
+          git push
+
+      - name: 📱 Dispatch Push Notification to Phone
+        run: |
+          curl -s -d "🎬 Today's 4 viral edits (Hindi, Telugu, Tamil, Wildcard) are ready in the cloud! Tap to review & download on your phone." \
+               -H "Title: CinePulse: 4 New Edits Ready!" \
+               -H "Priority: high" \
+               -H "Tags: movie_camera,fire" \
+               -H "Click: https://github.com/${{ github.repository }}/releases/tag/drop-${{ steps.date.outputs.date }}" \
+               https://ntfy.sh/cinepulse_flx_venkat_channel

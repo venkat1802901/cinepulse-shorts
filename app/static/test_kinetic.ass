@@ -1,0 +1,22 @@
+[Script Info]
+Title: CinePulse Kinetic Lyrics
+ScriptType: v4.00+
+WrapStyle: 0
+ScaledBorderAndShadow: yes
+YCbCr Matrix: TV.709
+PlayResX: 1080
+PlayResY: 1920
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: KineticMain,Segoe UI,58,&H0000FFFF,&H40FFFFFF,&H00000000,&H80000000,-1,0,0,0,100,100,1.5,0,1,4.5,2.0,2,60,60,320,1
+Style: KineticAccent,Segoe UI,62,&H00D7FF,&H30FFFFFF,&H00000000,&H90000000,-1,0,0,0,105,105,2.0,0,1,5.0,3.0,2,60,60,320,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.50,0:00:03.50,KineticMain,,0,0,0,,{\fad(120,150)}{\k75}Figure {\k75}ton {\k75}lagdi {\k75}Latino
+Dialogue: 0,0:00:03.80,0:00:07.20,KineticMain,,0,0,0,,{\fad(120,150)}{\k37}Ik {\k37}vaari {\k37}dass {\k37}do {\k37}ji {\k37}aini {\k37}kyun {\k37}shaukeen {\k37}o
+Dialogue: 0,0:00:07.50,0:00:11.00,KineticMain,,0,0,0,,{\fad(120,150)}{\k50}Kal {\k50}hi {\k50}tu {\k50}Italy {\k50}ton {\k50}aayi {\k50}marjaaniye
+Dialogue: 0,0:00:11.20,0:00:14.50,KineticMain,,0,0,0,,{\fad(120,150)}{\k47}Te {\k47}purse {\k47}tu {\k47}Paris {\k47}ton {\k47}mangaya {\k47}Valentino
+Dialogue: 0,0:00:15.00,0:00:18.00,KineticMain,,0,0,0,,{\fad(120,150)}{\k50}Husn {\k50}tera {\k50}tauba {\k50}tauba {\k50}tauba {\k50}tauba
+Dialogue: 0,0:00:18.20,0:00:22.00,KineticMain,,0,0,0,,{\fad(120,150)}{\k63}Husn {\k63}tera {\k63}tauba {\k63}tauba {\k63}tauba {\k63}tauba
