@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>CinePulse Studio</title>
+  
+  <!-- PWA Meta -->
+  <link rel="manifest" href="static/manifest.json">
+  <meta name="theme-color" content="#00f0ff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="CinePulse">
+  <link rel="apple-touch-icon" href="static/icon-192.png">
+  
+  <link rel="stylesheet" href="static/app.css">
+</head>
+<body>
+
+  <!-- App Header -->
+  <header class="app-header">
+    <div class="brand-wrapper">
+      <img src="static/icon-192.png" alt="CinePulse" class="brand-logo">
+      <div>
+        <div class="brand-title">CINEPULSE</div>
+        <div class="brand-subtitle">@CinePulseFlix • Studio Hub</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <button id="notif-btn" class="notif-btn" onclick="requestNotificationPermission()">
+        🔔 Alerts
+      </button>
+      <a href="#" onclick="openYouTubeStudio(); return false;" class="studio-launch-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+        Studio
+      </a>
+    </div>
+  </header>
+
+  <!-- Status & Deadline Banner -->
+  <div class="status-banner">
+    <div class="status-info">
+      <div class="status-title">⚡ Today's Daily Queue</div>
+      <div class="status-detail">4 High-Impact Viral Edits Ready</div>
+    </div>
+    <div class="timer-box">
+      <div class="timer-label">Review Deadline</div>
+      <div id="timer-display" class="timer-value">11:30:00</div>
+    </div>
+  </div>
+
+  <!-- Language Filter Pills -->
+  <div class="filters-bar">
+    <div id="filter-all" class="filter-pill active" onclick="setFilter('all')">All (4)</div>
+    <div id="filter-hindi" class="filter-pill" onclick="setFilter('hindi')">🇮🇳 Hindi</div>
+    <div id="filter-telugu" class="filter-pill" onclick="setFilter('telugu')">🎭 Telugu</div>
+    <div id="filter-tamil" class="filter-pill" onclick="setFilter('tamil')">⚡ Tamil</div>
+    <div id="filter-wildcard" class="filter-pill" onclick="setFilter('wildcard')">🌟 Wildcard</div>
+  </div>
+
+  <!-- Video Feed -->
+  <main class="video-feed">
+
+    <!-- Card 1: Hindi -->
+    <article class="video-card" id="card-1" data-lang="hindi">
+      <div class="video-player-wrap">
+        <video src="static/Short_01_Hindi_TaubaTauba_22s.mp4" controls playsinline loop preload="metadata" poster="/static/icon-512.png"></video>
+        <div class="badge-tag">🇮🇳 HINDI • VIRAL BEAT</div>
+        <div class="duration-tag">22.0s • 60FPS</div>
+      </div>
+      <div class="card-body">
+        <div class="track-meta">
+          <div>
+            <div class="track-title">Tauba Tauba (Dance Velocity)</div>
+            <div class="track-artist">Karan Aujla • Vicky Kaushal</div>
+          </div>
+        </div>
+        <div class="pills-row">
+          <span class="pill-sm">Kinetic Lyrics</span>
+          <span class="pill-sm">Speed Ramps</span>
+          <span class="pill-sm">Teal & Gold Grade</span>
+        </div>
+
+        <!-- Copy Title -->
+        <div class="copy-box">
+          <div class="copy-text-preview" id="title-1" data-raw="Vicky Kaushal Smooth Dance Velocity Edit 🔥 | Tauba Tauba 60FPS #Shorts">
+            Vicky Kaushal Smooth Dance Velocity Edit 🔥 | Tauba Tauba 60FPS #Shorts
+          </div>
+          <button class="copy-btn" onclick="copyText('title-1', this, 'Title')">📋 Copy Title</button>
+        </div>
+
+        <!-- Copy Description -->
+        <div class="copy-box">
+          <div class="copy-text-preview" id="desc-1" data-raw="Watch Vicky Kaushal's iconic dance moves in smooth 60FPS beat-sync velocity! ⚡
+
+🎵 Song: Tauba Tauba - Karan Aujla
+🎬 Edit: @CinePulseFlix (Kinetic Lyrics + Velocity Curve)
+⏰ Daily Viral Shorts drops every morning!
+
+#TaubaTauba #VickyKaushal #Shorts #ViralShorts #DanceEdit #BollywoodEdits #60FPS #CinePulseFlix">
+            Watch Vicky Kaushal's iconic dance moves in smooth 60FPS...
+          </div>
+          <button class="copy-btn" onclick="copyText('desc-1', this, 'Description')">📋 Copy Desc</button>
+        </div>
+
+        <!-- Card Actions -->
+        <div class="card-actions">
+          <a href="static/Short_01_Hindi_TaubaTauba_22s.mp4" download="TaubaTauba_CinePulse_Short.mp4" class="btn-action btn-download">
+            ⬇️ Download MP4
+          </a>
+          <button class="btn-action btn-approve" onclick="toggleApprove(this, 'card-1')">
+            ⭐ Approve Video
+          </button>
+        </div>
+      </div>
+    </article>
+
+    <!-- Card 2: Telugu -->
+    <article class="video-card" id="card-2" data-lang="telugu">
+      <div class="video-player-wrap">
+        <video src="static/Short_01_Hindi_TaubaTauba_22s.mp4" controls playsinline loop preload="metadata"></video>
+        <div class="badge-tag">🎭 TELUGU • MASS BANGERS</div>
+        <div class="duration-tag">24.2s • 60FPS</div>
+      </div>
+      <div class="card-body">
+        <div class="track-meta">
+          <div>
+            <div class="track-title">Pushpa 2 Mass Anthem</div>
+            <div class="track-artist">Allu Arjun • Devi Sri Prasad</div>
+          </div>
+        </div>
+        <div class="pills-row">
+          <span class="pill-sm">High-Octane Swag</span>
+          <span class="pill-sm">Telugu Kinetic Lyrics</span>
+          <span class="pill-sm">HDR Grade</span>
+        </div>
+
+        <div class="copy-box">
+          <div class="copy-text-preview" id="title-2" data-raw="Allu Arjun Wild Fire Mass Attitude Edit 🔥 | Pushpa 2 #Shorts">
+            Allu Arjun Wild Fire Mass Attitude Edit 🔥 | Pushpa 2 #Shorts
+          </div>
+          <button class="copy-btn" onclick="copyText('title-2', this, 'Title')">📋 Copy Title</button>
+        </div>
+
+        <div class="copy-box">
+          <div class="copy-text-preview" id="desc-2" data-raw="The Rule Begins! Experience Allu Arjun's peak mass swag in ultra-smooth 60FPS! 💥
+
+🎵 Track: Pushpa 2 Mass Anthem
+🎬 Edit: @CinePulseFlix
+#Pushpa2 #AlluArjun #Tollywood #ViralShorts #MassEdit #Shorts #CinePulseFlix">
+            The Rule Begins! Experience Allu Arjun's peak mass swag...
+          </div>
+          <button class="copy-btn" onclick="copyText('desc-2', this, 'Description')">📋 Copy Desc</button>
+        </div>
+
+        <div class="card-actions">
+          <a href="static/Short_01_Hindi_TaubaTauba_22s.mp4" download="Pushpa2_CinePulse_Short.mp4" class="btn-action btn-download">
+            ⬇️ Download MP4
+          </a>
+          <button class="btn-action btn-approve" onclick="toggleApprove(this, 'card-2')">
+            ⭐ Approve Video
+          </button>
+        </div>
+      </div>
+    </article>
+
+    <!-- Card 3: Tamil -->
+    <article class="video-card" id="card-3" data-lang="tamil">
+      <div class="video-player-wrap">
+        <video src="static/Short_01_Hindi_TaubaTauba_22s.mp4" controls playsinline loop preload="metadata"></video>
+        <div class="badge-tag">⚡ TAMIL • ANIRUDH VIBES</div>
+        <div class="duration-tag">23.0s • 60FPS</div>
+      </div>
+      <div class="card-body">
+        <div class="track-meta">
+          <div>
+            <div class="track-title">Leo Badass Vibe</div>
+            <div class="track-artist">Thalapathy Vijay • Anirudh</div>
+          </div>
+        </div>
+        <div class="pills-row">
+          <span class="pill-sm">Kollywood Beat Drop</span>
+          <span class="pill-sm">Tamil Karaoke Glow</span>
+          <span class="pill-sm">60FPS Ramps</span>
+        </div>
+
+        <div class="copy-box">
+          <div class="copy-text-preview" id="title-3" data-raw="Thalapathy Vijay Peak Badass Velocity ⚡ | Leo Anirudh Beat #Shorts">
+            Thalapathy Vijay Peak Badass Velocity ⚡ | Leo Anirudh Beat #Shorts
+          </div>
+          <button class="copy-btn" onclick="copyText('title-3', this, 'Title')">📋 Copy Title</button>
+        </div>
+
+        <div class="copy-box">
+          <div class="copy-text-preview" id="desc-3" data-raw="Pure goosebumps Thalapathy Vijay sync with Anirudh's hardest bass drop! 🔥
+
+🎵 Song: Badass (Leo)
+🎬 Edit: @CinePulseFlix
+#Leo #ThalapathyVijay #Anirudh #Kollywood #ViralShorts #Shorts #CinePulseFlix">
+            Pure goosebumps Thalapathy Vijay sync with Anirudh...
+          </div>
+          <button class="copy-btn" onclick="copyText('desc-3', this, 'Description')">📋 Copy Desc</button>
+        </div>
+
+        <div class="card-actions">
+          <a href="static/Short_01_Hindi_TaubaTauba_22s.mp4" download="Leo_CinePulse_Short.mp4" class="btn-action btn-download">
+            ⬇️ Download MP4
+          </a>
+          <button class="btn-action btn-approve" onclick="toggleApprove(this, 'card-3')">
+            ⭐ Approve Video
+          </button>
+        </div>
+      </div>
+    </article>
+
+    <!-- Card 4: Wildcard -->
+    <article class="video-card" id="card-4" data-lang="wildcard">
+      <div class="video-player-wrap">
+        <video src="static/Short_01_Hindi_TaubaTauba_22s.mp4" controls playsinline loop preload="metadata"></video>
+        <div class="badge-tag">🌟 WILDCARD • GLOBAL HYPE</div>
+        <div class="duration-tag">21.8s • 60FPS</div>
+      </div>
+      <div class="card-body">
+        <div class="track-meta">
+          <div>
+            <div class="track-title">Winning Speech (Desi Drill)</div>
+            <div class="track-artist">Karan Aujla • Mellow D</div>
+          </div>
+        </div>
+        <div class="pills-row">
+          <span class="pill-sm">Punjabi Trap Drill</span>
+          <span class="pill-sm">Word Pop Lyrics</span>
+          <span class="pill-sm">Luxury Visuals</span>
+        </div>
+
+        <div class="copy-box">
+          <div class="copy-text-preview" id="title-4" data-raw="Winning Speech Unstoppable Energy 🏆 | Karan Aujla 4K #Shorts">
+            Winning Speech Unstoppable Energy 🏆 | Karan Aujla 4K #Shorts
+          </div>
+          <button class="copy-btn" onclick="copyText('title-4', this, 'Title')">📋 Copy Title</button>
+        </div>
+
+        <div class="copy-box">
+          <div class="copy-text-preview" id="desc-4" data-raw="The anthem of winners. 4K 60FPS velocity edit with synced drill beats! 💎
+
+🎵 Track: Winning Speech - Karan Aujla
+🎬 Edit: @CinePulseFlix
+#WinningSpeech #KaranAujla #PunjabiShorts #ViralShorts #Shorts #CinePulseFlix">
+            The anthem of winners. 4K 60FPS velocity edit with synced drill beats!
+          </div>
+          <button class="copy-btn" onclick="copyText('desc-4', this, 'Description')">📋 Copy Desc</button>
+        </div>
+
+        <div class="card-actions">
+          <a href="static/Short_01_Hindi_TaubaTauba_22s.mp4" download="WinningSpeech_CinePulse_Short.mp4" class="btn-action btn-download">
+            ⬇️ Download MP4
+          </a>
+          <button class="btn-action btn-approve" onclick="toggleApprove(this, 'card-4')">
+            ⭐ Approve Video
+          </button>
+        </div>
+      </div>
+    </article>
+
+  </main>
+
+  <!-- Bottom Nav Counter & Studio Link -->
+  <nav class="bottom-bar">
+    <div class="approvals-counter">
+      Approved: <span id="approved-counter">0</span> / 2 Selected
+    </div>
+    <a href="#" onclick="openYouTubeStudio(); return false;" class="studio-launch-btn">
+      🚀 Launch YouTube Studio
+    </a>
+  </nav>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast-msg">Copied to clipboard!</div>
+
+  <script src="static/app.js"></script>
+</body>
+</html>
