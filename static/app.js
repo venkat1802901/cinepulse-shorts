@@ -230,14 +230,37 @@ function escapeHtml(str) {
   return str.replace(/"/g, '&quot;');
 }
 
-// Register Service Worker
+// PWA Native Install Prompt Handler
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  const notifBtn = document.getElementById('notif-btn');
+  if (notifBtn) {
+    notifBtn.innerHTML = `📲 Install App`;
+    notifBtn.onclick = () => {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then((choiceResult) => {
+        if (choiceResult.outcome === 'accepted') {
+          showToast('🎉 CinePulse installed successfully!');
+          notifBtn.innerHTML = `🔔 Alerts`;
+          notifBtn.onclick = requestNotificationPermission;
+        }
+        deferredPrompt = null;
+      });
+    };
+  }
+});
+
+// Register Service Worker with relative scope
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('static/sw.js').then(() => {
+    navigator.serviceWorker.register('static/sw.js', { scope: './' }).then(() => {
       checkExistingNotificationStatus();
     }).catch(err => console.log('SW failed', err));
   });
 }
+
 
 // Initial load
 document.addEventListener('DOMContentLoaded', () => {
