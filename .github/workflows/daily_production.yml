@@ -1,20 +1,32 @@
-name: CinePulse Midnight 4-Video Production
+name: CinePulse Midnight 4-Video Production & App Deploy
 
 on:
   schedule:
     # 18:30 UTC = 12:00 AM IST (Midnight)
     - cron: '30 18 * * *'
-  workflow_dispatch: # Allows 1-click manual trigger from GitHub app on phone!
+  workflow_dispatch: # Allows 1-click manual trigger from phone!
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
-  produce-daily-shorts:
+  produce-and-deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
 
     steps:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: 🐍 Set up Python 3.12
         uses: actions/setup-python@v5
@@ -32,7 +44,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: ⚙️ Execute Midnight Production Engine (Deduplication + Kinetic Lyrics + 60FPS)
+      - name: ⚙️ Execute Video Generation Engine (Deduplication + Lyrics + 60FPS)
         run: |
           python daily_runner.py
 
@@ -40,39 +52,31 @@ jobs:
         id: date
         run: echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
 
-      - name: 🚀 Publish 4 Finished Videos as GitHub Daily Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: drop-${{ steps.date.outputs.date }}
-          name: "🎬 CinePulse Daily Drop — ${{ steps.date.outputs.date }}"
-          files: |
-            app/static/*.mp4
-            app/data/videos.json
-          body: |
-            ## ⚡ CinePulse Daily Drop Ready!
-            4 Fresh 60FPS Edits produced autonomously in the cloud:
-            - 🇮🇳 **Hindi**: Trending Dance Velocity
-            - 🎭 **Telugu**: Tollywood Mass Anthem
-            - ⚡ **Tamil**: Kollywood Beat Drop
-            - 🌟 **Wildcard**: Breakout Viral Trend
-
-            Tap on any video asset below to download directly to your phone, approve your favorite 2, and publish!
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: 💾 Commit Updated Deduplication Ledger
+      - name: 💾 Commit Deduplication Ledger Back to Repo
         run: |
           git config --global user.name "CinePulse Cloud Bot"
           git config --global user.email "bot@cinepulse.ai"
-          git add app/data/channel_ledger.json app/data/videos.json
-          git commit -m "Auto-update deduplication ledger for ${{ steps.date.outputs.date }} [skip ci]" || echo "No changes to commit"
-          git push
+          git add app/data/channel_ledger.json
+          git commit -m "Update deduplication ledger for ${{ steps.date.outputs.date }} [skip ci]" || echo "No ledger changes"
+          git push || echo "Push skipped"
+
+      - name: 🌐 Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: 📦 Package CinePulse App & Videos for Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: 🚀 Deploy App & Fresh Videos Directly to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
 
       - name: 📱 Dispatch Push Notification to Phone
         run: |
-          curl -s -d "🎬 Today's 4 viral edits (Hindi, Telugu, Tamil, Wildcard) are ready in the cloud! Tap to review & download on your phone." \
-               -H "Title: CinePulse: 4 New Edits Ready!" \
+          curl -s -d "🎬 Today's 4 fresh 60FPS viral edits are live in your CinePulse app! Tap to review & approve." \
+               -H "Title: CinePulse: New Edits Live!" \
                -H "Priority: high" \
                -H "Tags: movie_camera,fire" \
-               -H "Click: https://github.com/${{ github.repository }}/releases/tag/drop-${{ steps.date.outputs.date }}" \
+               -H "Click: https://venkat1802901.github.io/cinepulse-shorts/" \
                https://ntfy.sh/cinepulse_flx_venkat_channel
