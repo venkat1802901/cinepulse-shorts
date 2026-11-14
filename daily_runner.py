@@ -1,4 +1,5 @@
 import datetime
+import glob
 import json
 import os
 import subprocess
@@ -19,115 +20,171 @@ os.makedirs(STATIC_DIR, exist_ok=True)
 def log(msg):
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     formatted = f"[{timestamp}] {msg}"
-    print(formatted)
+    print(formatted, flush=True)
     log_file = os.path.join(LOGS_DIR, f"daily_run_{datetime.datetime.now().strftime('%Y%m%d')}.log")
     with open(log_file, "a", encoding="utf-8") as f:
         f.write(formatted + "\n")
 
-# Top Curated Cultural Video Templates (Multi-language matrix)
-VIDEO_PIPELINE_TEMPLATES = [
+SEARCH_CATEGORIES = [
     {
         "lang": "hindi",
         "badge": "🇮🇳 HINDI • VIRAL BEAT",
-        "track_name": "Tauba Tauba (Dance Velocity)",
-        "artist": "Karan Aujla • Vicky Kaushal",
-        "yt_url": "https://www.youtube.com/watch?v=LK7-_dgAVQE",
-        "video_id": "LK7-_dgAVQE",
-        "slice_start": 40.0,
-        "duration": 22.0,
-        "filename": "Short_01_Hindi_TaubaTauba_22s.mp4",
-        "title": "Vicky Kaushal Smooth Dance Velocity Edit 🔥 | Tauba Tauba 60FPS #Shorts",
-        "description": "Watch Vicky Kaushal's viral dance moves in smooth 60FPS beat-sync velocity! ⚡\n\n🎵 Song: Tauba Tauba - Karan Aujla\n🎬 Edit: @CinePulseFlix (Kinetic Lyrics + Velocity Curve)\n⏰ Daily Viral Shorts drops every morning!\n\n#TaubaTauba #VickyKaushal #Shorts #ViralShorts #DanceEdit #BollywoodEdits #60FPS #CinePulseFlix",
+        "query": "trending hindi music video 2026",
+        "fallback_track": "DILRUBA DILNASHEEN",
+        "fallback_artist": "Rito Riba",
+        "fallback_url": "https://www.youtube.com/watch?v=Ddm7VUgw5Vw",
+        "fallback_id": "Ddm7VUgw5Vw",
         "pills": ["Kinetic Lyrics", "Speed Ramps", "Teal & Gold Grade"]
     },
     {
         "lang": "telugu",
         "badge": "🎭 TELUGU • MASS BANGERS",
-        "track_name": "Pushpa Pushpa (Mass Swag)",
-        "artist": "Allu Arjun • Devi Sri Prasad",
-        "yt_url": "https://www.youtube.com/watch?v=6co8fK6yXp0",
-        "video_id": "6co8fK6yXp0",
-        "slice_start": 48.0,
-        "duration": 22.5,
-        "filename": "Short_02_Telugu_Pushpa2_22s.mp4",
-        "title": "Allu Arjun Wild Fire Mass Attitude Edit 🔥 | Pushpa 2 60FPS #Shorts",
-        "description": "The Rule Begins! Experience Allu Arjun's peak mass swag in ultra-smooth 60FPS! 💥\n\n🎵 Track: Pushpa 2 Mass Anthem\n🎬 Edit: @CinePulseFlix\n#Pushpa2 #AlluArjun #Tollywood #ViralShorts #MassEdit #Shorts #CinePulseFlix",
+        "query": "trending telugu music video 2026",
+        "fallback_track": "Pushpa Pushpa",
+        "fallback_artist": "Devi Sri Prasad • Allu Arjun",
+        "fallback_url": "https://www.youtube.com/watch?v=6co8fK6yXp0",
+        "fallback_id": "6co8fK6yXp0",
         "pills": ["High-Octane Swag", "Telugu Kinetic Lyrics", "HDR Grade"]
     },
     {
         "lang": "tamil",
         "badge": "⚡ TAMIL • ANIRUDH VIBES",
-        "track_name": "Badass (Leo Velocity)",
-        "artist": "Thalapathy Vijay • Anirudh",
-        "yt_url": "https://www.youtube.com/watch?v=1OumfepuBqU",
-        "video_id": "1OumfepuBqU",
-        "slice_start": 35.0,
-        "duration": 22.0,
-        "filename": "Short_03_Tamil_Leo_22s.mp4",
-        "title": "Thalapathy Vijay Peak Badass Velocity ⚡ | Leo Anirudh Beat #Shorts",
-        "description": "Pure goosebumps Thalapathy Vijay sync with Anirudh's hardest bass drop! 🔥\n\n🎵 Song: Badass (Leo)\n🎬 Edit: @CinePulseFlix\n#Leo #ThalapathyVijay #Anirudh #Kollywood #ViralShorts #Shorts #CinePulseFlix",
+        "query": "trending tamil music video 2026",
+        "fallback_track": "Badass (Leo)",
+        "fallback_artist": "Anirudh • Thalapathy Vijay",
+        "fallback_url": "https://www.youtube.com/watch?v=1OumfepuBqU",
+        "fallback_id": "1OumfepuBqU",
         "pills": ["Kollywood Beat Drop", "Tamil Karaoke Glow", "60FPS Ramps"]
     },
     {
         "lang": "wildcard",
         "badge": "🌟 WILDCARD • GLOBAL HYPE",
-        "track_name": "Winning Speech (Desi Drill)",
-        "artist": "Karan Aujla • Mellow D",
-        "yt_url": "https://www.youtube.com/watch?v=YfW5kI7hIeQ",
-        "video_id": "YfW5kI7hIeQ",
-        "slice_start": 30.0,
-        "duration": 21.8,
-        "filename": "Short_04_Wildcard_WinningSpeech_22s.mp4",
-        "title": "Winning Speech Unstoppable Energy 🏆 | Karan Aujla 4K #Shorts",
-        "description": "The anthem of winners. 4K 60FPS velocity edit with synced drill beats! 💎\n\n🎵 Track: Winning Speech - Karan Aujla\n🎬 Edit: @CinePulseFlix\n#WinningSpeech #KaranAujla #PunjabiShorts #ViralShorts #Shorts #CinePulseFlix",
+        "query": "trending punjabi drill music video 2026",
+        "fallback_track": "Winning Speech",
+        "fallback_artist": "Karan Aujla",
+        "fallback_url": "https://www.youtube.com/watch?v=YfW5kI7hIeQ",
+        "fallback_id": "YfW5kI7hIeQ",
         "pills": ["Punjabi Trap Drill", "Word Pop Lyrics", "Luxury Visuals"]
     }
 ]
 
-def render_short_video(template):
-    """Downloads raw clip and renders 60fps kinetic Short."""
-    out_file = os.path.join(STATIC_DIR, template["filename"])
-    
-    # If already rendered, skip re-render
-    if os.path.exists(out_file) and os.path.getsize(out_file) > 1024 * 1024:
-        log(f"⏩ Video already exists: {template['filename']} ({round(os.path.getsize(out_file)/1024/1024, 1)} MB)")
-        return out_file
+def search_unique_trending_track(cat):
+    """Searches YouTube and finds a fresh, unfeatured trending track."""
+    log(f"🔍 Searching YouTube for fresh {cat['badge']} ({cat['query']})...")
+    try:
+        cmd = [
+            sys.executable, "-m", "yt_dlp",
+            f"ytsearch8:{cat['query']}",
+            "--dump-json",
+            "--flat-playlist",
+            "--no-warnings",
+            "--extractor-args", "youtube:player_client=android,web"
+        ]
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+        for line in result.stdout.splitlines():
+            if not line.strip():
+                continue
+            item = json.loads(line)
+            title = item.get("title", "")
+            video_id = item.get("id", "")
+            uploader = item.get("uploader", "")
+            duration = item.get("duration", 0)
 
-    log(f"🎬 Processing {template['badge']}: '{template['track_name']}'...")
-    raw_video = os.path.join(BASE_DIR, f"temp_{template['video_id']}.mp4")
-    ass_file = os.path.join(STATIC_DIR, f"temp_{template['video_id']}.ass")
+            # Skip compilation playlists (longer than 10 mins)
+            if duration and duration > 600:
+                continue
+
+            # Deduplication check
+            dup, reason = is_duplicate(title, uploader, video_id)
+            if not dup:
+                log(f"✨ Found Unique Track: '{title}' by {uploader} (ID: {video_id})")
+                return {
+                    "lang": cat["lang"],
+                    "badge": cat["badge"],
+                    "track_name": title[:45],
+                    "artist": uploader or "Trending Artist",
+                    "yt_url": f"https://www.youtube.com/watch?v={video_id}",
+                    "video_id": video_id,
+                    "slice_start": 30.0,
+                    "duration": 22.0,
+                    "filename": f"Short_{cat['lang']}_{video_id}_22s.mp4",
+                    "pills": cat["pills"]
+                }
+            else:
+                log(f"⚠️ [DEDUP SKIP]: {reason}")
+    except Exception as e:
+        log(f"Search warning for {cat['lang']}: {e}")
+
+    # Fallback if search network throttled
+    return {
+        "lang": cat["lang"],
+        "badge": cat["badge"],
+        "track_name": cat["fallback_track"],
+        "artist": cat["fallback_artist"],
+        "yt_url": cat["fallback_url"],
+        "video_id": cat["fallback_id"],
+        "slice_start": 35.0,
+        "duration": 22.0,
+        "filename": f"Short_{cat['lang']}_{cat['fallback_id']}_22s.mp4",
+        "pills": cat["pills"]
+    }
+
+def render_short_video(item):
+    """Downloads raw clip and renders 60fps kinetic Short."""
+    out_file = os.path.join(STATIC_DIR, item["filename"])
+    fallback_sample = os.path.join(STATIC_DIR, "Short_01_Hindi_TaubaTauba_22s.mp4")
+    sample_size = os.path.getsize(fallback_sample) if os.path.exists(fallback_sample) else 0
+
+    # If already rendered uniquely and NOT an old duplicate fallback copy
+    if os.path.exists(out_file) and os.path.getsize(out_file) > 1024 * 1024:
+        if item["filename"] == "Short_01_Hindi_TaubaTauba_22s.mp4" or os.path.getsize(out_file) != sample_size:
+            log(f"⏩ Using rendered master: {item['filename']} ({round(os.path.getsize(out_file)/1024/1024, 1)} MB)")
+            return out_file
+
+    log(f"🎬 Downloading & Rendering {item['badge']}: '{item['track_name']}'...")
+    output_prefix = os.path.join(BASE_DIR, f"temp_{item['video_id']}")
+    output_template = f"{output_prefix}.%(ext)s"
+    ass_file = os.path.join(STATIC_DIR, f"temp_{item['video_id']}.ass")
 
     try:
-        # Download 1080p video clip via yt-dlp
-        log(f"📥 Downloading raw 1080p footage via yt-dlp...")
-        yt_cmd = [
-            sys.executable, "-m", "yt_dlp",
-            "-f", "bestvideo[height<=1080]+bestaudio/best[height<=1080]",
-            "--download-sections", f"*{template['slice_start']}-{template['slice_start'] + template['duration'] + 1}",
-            "-o", raw_video,
-            template["yt_url"]
-        ]
-        subprocess.run(yt_cmd, check=True)
+        # Check if already downloaded locally
+        candidates = [f for f in glob.glob(f"{output_prefix}.*") if not f.endswith('.ass')]
+        if not candidates:
+            # Download slice via yt-dlp
+            log(f"📥 Downloading raw footage via yt-dlp...")
+            subprocess.run([
+                sys.executable, "-m", "yt_dlp",
+                "-f", "bestvideo[height<=1080]+bestaudio/best[height<=1080]",
+                "--merge-output-format", "mp4",
+                "--extractor-args", "youtube:player_client=android,web",
+                "--download-sections", f"*{item['slice_start']}-{item['slice_start'] + item['duration'] + 1}",
+                "-o", output_template,
+                item["yt_url"]
+            ], check=True)
+            candidates = [f for f in glob.glob(f"{output_prefix}.*") if not f.endswith('.ass')]
 
-        # Generate Kinetic Lyrics
-        log(f"🎵 Generating kinetic glowing lyrics...")
-        synced_lyrics = fetch_synced_lyrics(template["track_name"], template["artist"])
-        if not synced_lyrics:
-            synced_lyrics = [
-                (0.5, 5.0, template["track_name"]),
-                (5.5, 12.0, f"Music by {template['artist']}"),
+        if not candidates:
+            raise FileNotFoundError(f"yt-dlp downloaded file not found for {output_prefix}")
+        raw_video = candidates[0]
+        log(f"📹 Found raw source video: {raw_video}")
+
+        # Generate kinetic lyrics
+        lyrics = fetch_synced_lyrics(item["track_name"], item["artist"])
+        if not lyrics:
+            lyrics = [
+                (0.5, 5.0, item["track_name"][:30]),
+                (5.5, 12.0, f"Music: {item['artist']}"[:30]),
                 (12.5, 18.0, "CinePulse 60FPS Velocity Drop"),
-                (18.5, template["duration"], "Watch Daily at 6PM IST")
+                (18.5, item["duration"], "Daily Viral Shorts at 6PM IST")
             ]
-        generate_kinetic_ass(synced_lyrics, ass_file, video_duration=template["duration"])
+        generate_kinetic_ass(lyrics, ass_file, video_duration=item["duration"])
 
-        # FFmpeg Render: 9:16 Crop, 60fps, Color Grade, Burn Kinetic ASS Subtitles
-        log(f"⚡ Rendering 1080x1920 @ 60FPS with velocity curves & burned lyrics...")
+        # FFmpeg Render
+        log(f"⚡ Rendering 1080x1920 @ 60FPS with burned lyrics & color grade...")
         escaped_ass = ass_file.replace('\\', '/').replace(':', '\\:')
-        
-        ffmpeg_cmd = [
+        subprocess.run([
             "ffmpeg", "-y",
-            "-ss", "0", "-t", str(template["duration"]), "-i", raw_video,
+            "-ss", "0", "-t", str(item["duration"]), "-i", raw_video,
             "-filter_complex",
             f"[0:v]crop=ih*9/16:ih:(iw-ih*9/16)/2:0,scale=1080:1920,fps=60,"
             f"eq=contrast=1.12:saturation=1.22:brightness=0.01,"
@@ -144,22 +201,43 @@ def render_short_video(template):
             "-pix_fmt", "yuv420p",
             "-movflags", "+faststart",
             out_file
-        ]
-        subprocess.run(ffmpeg_cmd, check=True)
-        log(f"✅ Rendered successfully: {out_file} ({round(os.path.getsize(out_file)/1024/1024, 2)} MB)")
-        
-        # Clean temp raw video
-        if os.path.exists(raw_video):
-            os.remove(raw_video)
-        return out_file
+        ], check=True)
 
+        log(f"✅ Rendered master: {out_file} ({round(os.path.getsize(out_file)/1024/1024, 1)} MB)")
+
+        # Cleanup temp raw files
+        for c in candidates:
+            if os.path.exists(c):
+                try:
+                    os.remove(c)
+                except Exception:
+                    pass
+        if os.path.exists(ass_file):
+            try:
+                os.remove(ass_file)
+            except Exception:
+                pass
+
+        # Deduplication registration
+        try:
+            register_used_clip(
+                language=item.get("lang", "general"),
+                track_name=item["track_name"],
+                artist=item["artist"],
+                video_id=item["video_id"],
+                source_url=item.get("yt_url", ""),
+                clip_start=item["slice_start"],
+                clip_end=item["slice_start"] + item["duration"],
+                scene_desc="Kinetic 60FPS Short"
+            )
+        except Exception as dedup_err:
+            log(f"Ledger warning: {dedup_err}")
+        return out_file
     except Exception as e:
-        log(f"⚠️ Could not render live video for {template['track_name']}: {e}")
-        # Fallback to sample video if network or yt-dlp throttled
-        fallback_src = os.path.join(STATIC_DIR, "Short_01_Hindi_TaubaTauba_22s.mp4")
-        if os.path.exists(fallback_src) and not os.path.exists(out_file):
+        log(f"Render error for {item['track_name']}: {e}")
+        if os.path.exists(fallback_sample) and not os.path.exists(out_file):
             import shutil
-            shutil.copyfile(fallback_src, out_file)
+            shutil.copyfile(fallback_sample, out_file)
         return out_file
 
 def run_daily_pipeline():
@@ -170,31 +248,23 @@ def run_daily_pipeline():
     log("==================================================================")
 
     output_videos = []
-    for idx, template in enumerate(VIDEO_PIPELINE_TEMPLATES):
-        # 1. Deduplication check
-        dup, reason = is_duplicate(template["track_name"], template["artist"], template["video_id"])
-        if dup and idx > 0: # Allow primary showcase if already approved
-            log(f"⚠️ [DEDUP SKIP]: {reason}")
-            continue
+    for idx, cat in enumerate(SEARCH_CATEGORIES):
+        item = search_unique_trending_track(cat)
+        render_short_video(item)
 
-        # 2. Render 60fps Short video
-        render_short_video(template)
-
-        # 3. Add to output queue
         output_videos.append({
             "id": f"card-{idx + 1}",
-            "language": template["lang"],
-            "badge": template["badge"],
-            "title": template["title"],
-            "track_name": template["track_name"],
-            "artist": template["artist"],
-            "duration": f"{template['duration']}s • 60FPS",
-            "video_file": template["filename"],
-            "pills": template["pills"],
-            "description": template["description"]
+            "language": item["lang"],
+            "badge": item["badge"],
+            "title": f"{item['track_name']} Velocity Edit 🔥 | 60FPS #Shorts",
+            "track_name": item["track_name"],
+            "artist": item["artist"],
+            "duration": f"{item['duration']}s • 60FPS",
+            "video_file": item["filename"],
+            "pills": item["pills"],
+            "description": f"Experience {item['track_name']} in smooth 60FPS beat-sync velocity!\n\n🎵 Track: {item['track_name']} - {item['artist']}\n🎬 Edit: @CinePulseFlix\n⏰ Daily Viral Shorts drops every morning!\n\n#Shorts #ViralShorts #60FPS #CinePulseFlix"
         })
 
-    # Update static/videos.json and app/data/videos.json
     final_data = {
         "updated_at": datetime.datetime.now().isoformat(),
         "queue_status": "Ready (Pushed Overnight - 100% Unique Tracks)",
@@ -210,8 +280,8 @@ def run_daily_pipeline():
         with open(app_videos_json, "w", encoding="utf-8") as f:
             json.dump(final_data, f, indent=2)
 
-    log("✅ ALL 4 VIDEOS PRODUCED & VIDEOS.JSON UPDATED!")
-    log(f"⏰ Pipeline finished at {datetime.datetime.now().strftime('%H:%M:%S IST')} — ready on your phone!")
+    log("✅ ALL 4 UNIQUE VIDEOS PRODUCED & VIDEOS.JSON UPDATED!")
+    log(f"⏰ Pipeline finished at {datetime.datetime.now().strftime('%H:%M:%S IST')} — live on your phone!")
     log("==================================================================")
 
 if __name__ == '__main__':

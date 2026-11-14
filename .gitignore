@@ -13,8 +13,12 @@ cloudflared.exe
 .cloudflared/
 
 # Large temporary scratch videos
-temp_*.mp4
+temp_*.*
+*.webm
+*.ass
 chunk.wav
+Autonomous_Editor_Workspace/
+Short_REAL_Vicky_TaubaTauba.mp4
 
 # Keep app static and ledger
 !app/data/channel_ledger.json

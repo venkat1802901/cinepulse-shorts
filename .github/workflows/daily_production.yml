@@ -44,12 +44,12 @@ jobs:
         run: |
           python daily_runner.py
 
-      - name: 💾 Commit Deduplication Ledger Back to Repo
+      - name: 💾 Commit Deduplication Ledger & Videos Feed Back to Repo
         run: |
           git config --global user.name "CinePulse Cloud Bot"
           git config --global user.email "bot@cinepulse.ai"
-          git add app/data/channel_ledger.json
-          git commit -m "Update deduplication ledger [skip ci]" || echo "No ledger changes"
+          git add app/data/channel_ledger.json static/videos.json app/data/videos.json
+          git commit -m "Update deduplication ledger & daily video queue [skip ci]" || echo "No changes"
           git push || echo "Push skipped"
 
       - name: 🌐 Configure GitHub Pages

@@ -1,7 +1,7 @@
-const CACHE_NAME = 'cinepulse-v2';
+const CACHE_NAME = 'cinepulse-v4';
 const ASSETS = [
-  '/',
-  '/manifest.json',
+  './',
+  'manifest.json',
   'static/manifest.json',
   'static/app.css',
   'static/app.js',
@@ -26,12 +26,27 @@ self.addEventListener('activate', (e) => {
 });
 
 self.addEventListener('fetch', (e) => {
-  // Pass video streaming requests straight to network
-  if (e.request.url.includes('/video/') || e.request.url.includes('.mp4') || e.request.url.includes('/api/')) {
+  const url = e.request.url;
+
+  // Videos and dynamic JSON feeds ALWAYS fetch fresh from network
+  if (url.includes('videos.json') || url.includes('.mp4') || url.includes('/api/')) {
+    e.respondWith(
+      fetch(e.request).catch(() => caches.match(e.request))
+    );
     return;
   }
+
+  // Network-first strategy for app shell assets so updates load immediately
   e.respondWith(
-    caches.match(e.request).then((res) => res || fetch(e.request))
+    fetch(e.request)
+      .then((response) => {
+        if (response && response.status === 200) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(e.request, clone));
+        }
+        return response;
+      })
+      .catch(() => caches.match(e.request))
   );
 });
 

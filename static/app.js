@@ -151,15 +151,23 @@ function openYouTubeStudio() {
   }
 }
 
-// Dynamic Video Feed Loader from static/videos.json
+// Dynamic Video Feed Loader with Cache-Busting
 function loadVideos() {
-  fetch('static/videos.json')
+  fetch('static/videos.json?t=' + Date.now(), { cache: 'no-store' })
     .then(res => res.json())
     .then(data => {
       if (!data || !data.videos) return;
       videosData = data.videos;
       const feed = document.getElementById('video-feed');
       if (!feed) return;
+
+      // Update status detail with fresh timestamp
+      const statusDetail = document.querySelector('.status-detail');
+      if (statusDetail && data.updated_at) {
+        const d = new Date(data.updated_at);
+        statusDetail.innerText = `Updated: ${d.toLocaleDateString()} ${d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} • 4 Fresh 60FPS Edits`;
+      }
+
 
       feed.innerHTML = '';
       videosData.forEach((v, idx) => {
