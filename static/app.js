@@ -1,5 +1,6 @@
 let activeFilter = 'all';
 let approvedCount = 0;
+let videosData = [];
 
 // Countdown to 11:30 AM IST
 function updateCountdown() {
@@ -46,19 +47,13 @@ async function requestNotificationPermission() {
       }
       showToast('🎉 Notifications enabled! Sending test alert...');
 
-      // Trigger test notification
       if ('serviceWorker' in navigator) {
         const reg = await navigator.serviceWorker.ready;
         reg.showNotification('🎬 CinePulse Daily Alerts Active!', {
           body: 'You will receive notifications every morning at 3:30 AM when fresh viral edits are ready!',
-          icon: '/static/icon-192.png',
-          badge: '/static/icon-192.png',
+          icon: 'static/icon-192.png',
+          badge: 'static/icon-192.png',
           vibrate: [200, 100, 200]
-        });
-      } else {
-        new Notification('🎬 CinePulse Daily Alerts Active!', {
-          body: 'You will receive notifications every morning when fresh viral edits are ready!',
-          icon: '/static/icon-192.png'
         });
       }
     } else {
@@ -70,7 +65,6 @@ async function requestNotificationPermission() {
   }
 }
 
-// Check existing permission on page load
 function checkExistingNotificationStatus() {
   if ('Notification' in window && Notification.permission === 'granted') {
     const notifBtn = document.getElementById('notif-btn');
@@ -134,7 +128,8 @@ function toggleApprove(btn, cardId) {
 function setFilter(lang) {
   activeFilter = lang;
   document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
-  document.getElementById(`filter-${lang}`).classList.add('active');
+  const pill = document.getElementById(`filter-${lang}`);
+  if (pill) pill.classList.add('active');
 
   document.querySelectorAll('.video-card').forEach(card => {
     if (lang === 'all' || card.getAttribute('data-lang') === lang) {
@@ -156,11 +151,95 @@ function openYouTubeStudio() {
   }
 }
 
+// Dynamic Video Feed Loader from static/videos.json
+function loadVideos() {
+  fetch('static/videos.json')
+    .then(res => res.json())
+    .then(data => {
+      if (!data || !data.videos) return;
+      videosData = data.videos;
+      const feed = document.getElementById('video-feed');
+      if (!feed) return;
+
+      feed.innerHTML = '';
+      videosData.forEach((v, idx) => {
+        const pillsHtml = (v.pills || []).map(p => `<span class="pill-sm">${p}</span>`).join('');
+        const videoSrc = v.video_file.startsWith('http') ? v.video_file : `static/${v.video_file}`;
+
+        const card = document.createElement('article');
+        card.className = 'video-card';
+        card.id = v.id || `card-${idx + 1}`;
+        card.setAttribute('data-lang', v.language);
+
+        card.innerHTML = `
+          <div class="video-player-wrap">
+            <video src="${videoSrc}" controls playsinline loop preload="metadata" poster="static/icon-512.png"></video>
+            <div class="badge-tag">${v.badge}</div>
+            <div class="duration-tag">${v.duration}</div>
+          </div>
+          <div class="card-body">
+            <div class="track-meta">
+              <div>
+                <div class="track-title">${v.track_name}</div>
+                <div class="track-artist">${v.artist}</div>
+              </div>
+            </div>
+            <div class="pills-row">
+              ${pillsHtml}
+            </div>
+
+            <!-- Copy Title -->
+            <div class="copy-box">
+              <div class="copy-text-preview" id="title-${idx}" data-raw="${escapeHtml(v.title)}">
+                ${v.title}
+              </div>
+              <button class="copy-btn" onclick="copyText('title-${idx}', this, 'Title')">📋 Copy Title</button>
+            </div>
+
+            <!-- Copy Description -->
+            <div class="copy-box">
+              <div class="copy-text-preview" id="desc-${idx}" data-raw="${escapeHtml(v.description)}">
+                ${v.description.substring(0, 50)}...
+              </div>
+              <button class="copy-btn" onclick="copyText('desc-${idx}', this, 'Description')">📋 Copy Desc</button>
+            </div>
+
+            <!-- Card Actions -->
+            <div class="card-actions">
+              <a href="${videoSrc}" download="${v.track_name.replace(/\\s+/g, '_')}_CinePulse.mp4" class="btn-action btn-download">
+                ⬇️ Download MP4
+              </a>
+              <button class="btn-action btn-approve" onclick="toggleApprove(this, '${card.id}')">
+                ⭐ Approve Video
+              </button>
+            </div>
+          </div>
+        `;
+        feed.appendChild(card);
+      });
+      // Re-apply filter
+      setFilter(activeFilter);
+    })
+    .catch(err => {
+      console.log('Error loading dynamic videos.json:', err);
+    });
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/"/g, '&quot;');
+}
+
 // Register Service Worker
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').then(() => {
+    navigator.serviceWorker.register('static/sw.js').then(() => {
       checkExistingNotificationStatus();
     }).catch(err => console.log('SW failed', err));
   });
 }
+
+// Initial load
+document.addEventListener('DOMContentLoaded', () => {
+  loadVideos();
+});
