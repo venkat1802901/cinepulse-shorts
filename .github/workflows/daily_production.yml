@@ -16,12 +16,8 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  produce-and-deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  build:
     runs-on: ubuntu-latest
-
     steps:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v4
@@ -48,27 +44,33 @@ jobs:
         run: |
           python daily_runner.py
 
-      - name: 📅 Get Today's Date
-        id: date
-        run: echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
-
       - name: 💾 Commit Deduplication Ledger Back to Repo
         run: |
           git config --global user.name "CinePulse Cloud Bot"
           git config --global user.email "bot@cinepulse.ai"
           git add app/data/channel_ledger.json
-          git commit -m "Update deduplication ledger for ${{ steps.date.outputs.date }} [skip ci]" || echo "No ledger changes"
+          git commit -m "Update deduplication ledger [skip ci]" || echo "No ledger changes"
           git push || echo "Push skipped"
 
       - name: 🌐 Configure GitHub Pages
         uses: actions/configure-pages@v5
 
-      - name: 📦 Package CinePulse App & Videos for Pages
+      - name: 📦 Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: '.'
 
-      - name: 🚀 Deploy App & Fresh Videos Directly to GitHub Pages
+  deploy:
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🚀 Deploy App & Fresh Videos to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
 
