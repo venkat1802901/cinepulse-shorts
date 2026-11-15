@@ -31,19 +31,25 @@ def get_videos():
 @app.route('/static/<path:filename>')
 def serve_static_or_video(filename):
     file_path = os.path.join(STATIC_DIR, filename)
+    dir_to_serve = STATIC_DIR
     if not os.path.exists(file_path):
-        return "File not found", 404
+        root_static = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static', filename)
+        if os.path.exists(root_static):
+            file_path = root_static
+            dir_to_serve = os.path.dirname(root_static)
+        else:
+            return "File not found", 404
 
     # Standard non-video files
     if not filename.endswith('.mp4'):
-        return send_from_directory(STATIC_DIR, filename)
+        return send_from_directory(dir_to_serve, filename)
 
     # Range request handling for smooth mobile video streaming
     file_size = os.path.getsize(file_path)
     range_header = request.headers.get('Range', None)
 
     if not range_header:
-        return send_from_directory(STATIC_DIR, filename, mimetype='video/mp4')
+        return send_from_directory(dir_to_serve, filename, mimetype='video/mp4')
 
     byte1, byte2 = 0, None
     m = range_header.replace('bytes=', '').split('-')
