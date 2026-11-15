@@ -28,3 +28,7 @@ Short_REAL_Vicky_TaubaTauba.mp4
 !app/static/app.js
 !app/static/app.css
 !app/static/icon-*.png
+
+# OAuth Secrets (Never commit to public repo)
+client_secret.json
+token.json
