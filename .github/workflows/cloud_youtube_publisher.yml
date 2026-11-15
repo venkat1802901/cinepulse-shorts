@@ -2,10 +2,8 @@ name: CinePulse 100% Cloud YouTube Shorts Auto-Publisher
 
 on:
   schedule:
-    # 00:30 UTC = 6:00 AM IST (Morning viral drop)
-    - cron: '30 0 * * *'
-    # 12:30 UTC = 6:00 PM IST (Evening prime-time drop)
-    - cron: '30 12 * * *'
+    # 11:30 UTC = 5:00 PM IST (Daily Evening Prime-Time Drop)
+    - cron: '30 11 * * *'
   workflow_dispatch: # Allows 1-click manual trigger from your phone via GitHub!
 
 permissions:

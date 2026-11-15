@@ -226,7 +226,7 @@ def main():
     final_data = {
         "updated_at": datetime.datetime.now().isoformat(),
         "queue_status": "Ready (Pushed Overnight - 100% Unique Multi-Scene Edits)",
-        "review_deadline": "3:30 AM IST",
+        "review_deadline": "5:00 PM IST",
         "videos": output_videos
     }
 

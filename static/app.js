@@ -2,14 +2,14 @@ let activeFilter = 'all';
 let approvedCount = 0;
 let videosData = [];
 
-// Countdown to 11:30 AM IST
+// Countdown to 5:00 PM IST (Evening Drop)
 function updateCountdown() {
   const now = new Date();
   const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
   const istNow = new Date(utc + (3600000 * 5.5));
 
   let deadline = new Date(istNow);
-  deadline.setHours(11, 30, 0, 0);
+  deadline.setHours(17, 0, 0, 0);
 
   if (istNow > deadline) {
     deadline.setDate(deadline.getDate() + 1);
